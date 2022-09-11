@@ -29,30 +29,43 @@ int main() {
     Player p1;
     Player p2;
     Die die;
-    std::cout << "Player 1's turn\n";
-    bool finished = false;
-    std::string choice = ""; 
-    while (!finished) {
-        std::cout << "Points: " << p1.currentPoints << "; Banked Points: " << p2.bankedPoints
-            << "\nroll or bank?\n";
-        std::cin >> choice;
-        if (p1.bankedPoints >= 100) {
-            std::cout << "player 1 wins!\n";
-            break;
-        } 
-        if (choice == "roll") {
-            int roll = die.roll();
-            std::cout << roll << "\n";
-            if (roll > 1) {
-                p1.currentPoints += roll;
-            } else {
-                p1.currentPoints = 0;
+    bool gameOver = false;
+    for (unsigned int i = 1; !gameOver; i = 1 + i % 2) {
+        std::cout << "Player " << i << "'s turn\n"
+            << "----------------\n";
+        bool finished = false;
+        std::string choice = ""; 
+        Player& curPlayer = (i == 1) ? p1 : p2;
+        while (!finished) {
+            std::cout << "Points: " << curPlayer.currentPoints << "; Banked Points: " << curPlayer.bankedPoints
+                << "\nroll or bank?\n";
+            std::cin >> choice;
+            if (choice == "roll") {
+                int roll = die.roll();
+                std::cout << roll << "\n";
+                if (roll > 1) {
+                    curPlayer.currentPoints += roll;
+                } else {
+                    curPlayer.currentPoints = 0;
+                    finished = true;
+                    std::cout << "\n";
+                }
+            } else if (choice == "bank") {
+                curPlayer.bankedPoints += curPlayer.currentPoints;
+                curPlayer.currentPoints = 0;
                 finished = true;
+                std::cout << "\n";
+            } else if (choice == "quit") {
+                finished = true;
+                gameOver = true;
+            } else {
+                std::cout << "Unrecognised command\n";
             }
-        } else if (choice == "bank") {
-            p1.bankedPoints = p1.currentPoints;
-            p1.currentPoints = 0;
+        }
+        if (curPlayer.bankedPoints >= 100) {
+            std::cout << "player " << i << " wins!\n";
             finished = true;
+            gameOver = true; 
         }
     }
     return 0;
